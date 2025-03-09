@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 
 curtime = datetime.now(tz=None)
-starttime = curtime - timedelta(hours=12)
+starttime = curtime - timedelta(hours=8)
 stime = starttime.strftime("%Y-%m-%dT%H:%M:%S")
 etime = curtime.strftime("%Y-%m-%dT%H:%M:%S")
 
