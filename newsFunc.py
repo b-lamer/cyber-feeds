@@ -10,16 +10,15 @@ import json
 
 headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/91.0.4472.124"}
 
-bleepingcomputer = "https://www.bleepingcomputer.com/news/security/"
-darkreading = "https://www.darkreading.com/"
-zdnet = "https://www.zdnet.com/"
+bleepingcomputer = "https://www.bleepingcomputer.com/news/security/" ###
+darkreading = "https://www.darkreading.com/" ###
 krebson = "https://krebsonsecurity.com/"
 cyberscoop = "https://cyberscoop.com/"
 hackernews = "https://thehackernews.com/"
-techcrunch = "https://techcrunch.com/tag/security/"
+techcrunch = "https://techcrunch.com/tag/security/" ###
 infosecmag = "https://www.infosecurity-magazine.com/"
+securitymagazine = "https://www.securitymagazine.com/"
 threatpost = "https://threatpost.com/"
-securitymagazine = "https://www.securitymagazine.com/rss"
 
 curtime = datetime.now(tz=None)
 
@@ -39,39 +38,27 @@ def bcRSS():
                     "link": item.link,
                     "description": item.description
                 }
+                
                 newsList.append(article)
         else:
             break
 
-def zdRSS(): #leave this site out of personal newsfeed, mostly irrelevant news
-    feed = feedparser.parse("https://www.zdnet.com/topic/security/rss.xml")
-
-    for item in feed.entries:
-        dtime = item.published
-        pub_time = datetime.strptime(dtime, "%a, %d %b %Y %H:%M:%S GMT")
-        if (curtime - pub_time) < timedelta(hours=12):
-            article = {
-                "title": item.title,
-                "link": item.link,
-                "description": item.description
-            }
-            newsList.append(article)
-        else:
-            break
-
 def tcRSS():
-    feed = feedparser.parse("https://techcrunch.com/tag/security/")
+    curtime = datetime.now(tz=None)
+    feed = feedparser.parse("https://techcrunch.com/feed/")
 
     for item in feed.entries:
         dtime = item.published
-        pub_time = datetime.strptime(dtime, "%a, %d %b %Y %H:%M:%S GMT")
+        pub_time = datetime.strptime(dtime, "%a, %d %b %Y %H:%M:%S %z").replace(tzinfo=None)
+
         if (curtime - pub_time) < timedelta(hours=12):
             article = {
                 "title": item.title,
-                "link": item.link,
-                "description": item.description
+                #"link": item.link,
+                #"description": item.description
             }
-            newsList.append(article)
+            print(article)
+            #newsList.append(article)
         else:
             break
 
@@ -112,29 +99,14 @@ def drScrape(): #Scraping DarkReading's news page
     site = requests.get(darkreading, headers=headers)
     sitehtml = BeautifulSoup(site.text, features="html.parser")
     news = sitehtml.find_all("div", class_ = "ContentPreview LatestFeatured-ContentItem LatestFeatured-ContentItem_left")
-    for div in news:
-        try:
-            date = div.find("li", class_="bc_news_date").text.strip()
-            time = div.find("li", class_="bc_news_time").text.strip()
-            dtime = f"{date} {time}"
-            publish_time = datetime.strptime(dtime, "%B %d, %Y %I:%M %p")
-            timediff = curtime - publish_time
-            if timediff <= timedelta(hours=12):
-                title = div.find("a")
-                print(title.text.strip())
-                print(title['href'])
-                desc = div.find("p").text.strip()
-                print(desc)
-            else:
-                break
-        except:
-            pass
 
 with open('newsData.json') as fp:
     newsList = json.load(fp)
     #print(len(newsList))
 
-bcRSS()
+#tcRSS()
+#bcRSS()
+drScrape()
 
 while len(newsList) > 20:
     print(len(newsList))

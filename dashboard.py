@@ -9,6 +9,8 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+#st.components.v1.html('<meta http-equiv="refresh" content="300">', height=0)
+
 hide_streamlit_style = """
 <style>
     #MainMenu {visibility: hidden;}
@@ -51,6 +53,7 @@ dark_theme = """
         border-radius: 5px;
         margin-bottom: 10px;
         border-left: 5px solid #4DA8DA;
+        font-size: 1.5rem;
     }
     
     .cve-item {
@@ -58,6 +61,7 @@ dark_theme = """
         padding: 15px;
         border-radius: 5px;
         margin-bottom: 10px;
+        font-size: 1.5rem;
     }
     
     .high-severity {
@@ -170,7 +174,7 @@ with col2:
             </div>
             """, unsafe_allow_html=True)
 
-# Invisible footer to create space at the bottom for discord-like scrolling
+
 st.markdown("<div style='margin-bottom:200px;'></div>", unsafe_allow_html=True)
 
-st_autorefresh(interval=2000, limit=100)
+st_autorefresh(interval=2000, limit=None)
