@@ -3,8 +3,9 @@
 #it can be separated and used on others personal projects as well if desired.
 
 import requests
-from bs4 import BeautifulSoup
-from datetime import datetime, timedelta, timezone
+import cloudscraper #Used to scrape CloudFlare sites
+from bs4 import BeautifulSoup #Used for scraping websites
+from datetime import datetime, timedelta, timezone #Used for comparing time/dates to avoid repeat articles 
 import feedparser
 import json
 
@@ -15,10 +16,9 @@ darkreading = "https://www.darkreading.com/" ###
 krebson = "https://krebsonsecurity.com/"
 cyberscoop = "https://cyberscoop.com/"
 hackernews = "https://thehackernews.com/"
-techcrunch = "https://techcrunch.com/tag/security/" ###
+techcrunch = "https://techcrunch.com/category/security/" ###
 infosecmag = "https://www.infosecurity-magazine.com/"
 securitymagazine = "https://www.securitymagazine.com/"
-threatpost = "https://threatpost.com/"
 
 curtime = datetime.now(tz=None)
 
@@ -65,8 +65,6 @@ def tcRSS():
 def smRSS():
     feed = "https://www.securitymagazine.com/rss"
 
-def tpRSS():
-    feed = "https://threatpost.com/rss-feeds/"
 
 
 
@@ -85,28 +83,67 @@ def bcScrape(): #Scraping BleepingComputer security news page
             publish_time = datetime.strptime(dtime, "%B %d, %Y %I:%M %p")
             timediff = curtime - publish_time
             if timediff <= timedelta(hours=12):
-                title = div.find("a")
-                print(title.text.strip())
-                print(title['href'])
+                titlbox = div.find("a")
+                link = titlbox['href']
+                title = titlbox.text.strip()
                 desc = div.find("p").text.strip()
-                print(desc)
+                article = {
+                    "title": title,
+                    "link": link,
+                    "description": desc
+                }
+                newsList.append(article)
             else:
                 break
         except:
             pass
 
 def drScrape(): #Scraping DarkReading's news page
-    site = requests.get(darkreading, headers=headers)
+    scraper = cloudscraper.create_scraper()
+    site = scraper.get(darkreading)
     sitehtml = BeautifulSoup(site.text, features="html.parser")
-    news = sitehtml.find_all("div", class_ = "ContentPreview LatestFeatured-ContentItem LatestFeatured-ContentItem_left")
+    news = sitehtml.find_all("div", class_ = "ListPreview-TitleWrapper")
+    for div in news[0:5]:
+        titlbox = div.find("a")
+        title = titlbox.text.strip()
+
+        titleCheck = ' '.join(title.split()[:3])
+        if any(titleCheck in article['title'] for article in newsList):
+            pass
+        else:
+            link = "https://www.darkreading.com" + titlbox['href']
+            article = {
+                "title": title,
+                "link": link
+            }
+            newsList.append(article)
+
+def tcScrape():
+    site = requests.get(techcrunch, headers=headers)
+    sitehtml = BeautifulSoup(site.text, features="html.parser")
+    news = sitehtml.find_all("div", class_ = "loop-card__content")
+    for div in news:
+        try:
+            timebox = div.find("time")
+            #print(timebox)
+            titlbox = div.find("a", class_ = "loop-card__title-link")
+            link = titlbox['href']
+            title = titlbox.text.strip()
+            print(title)
+            print(link)
+            #print()
+        except:
+            pass
 
 with open('newsData.json') as fp:
     newsList = json.load(fp)
-    #print(len(newsList))
+    #print(len(newsList)) # <- Json size bug testing
 
 #tcRSS()
 #bcRSS()
-drScrape()
+#drScrape()
+#bcScrape()
+tcScrape()
 
 while len(newsList) > 20:
     print(len(newsList))
