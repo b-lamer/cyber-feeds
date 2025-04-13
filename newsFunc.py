@@ -1,7 +1,9 @@
+#!/usr/bin/python3
 #This file contains various packages and functions used for scraping or reading RSS feeds of the websites listed below.
 #While this file is primarily made for its use for the newsFeed.py program at github.com/b-lamer/cyber-feeds, 
 #it can be separated and used on others personal projects as well if desired.
 
+from pathlib import Path
 import requests
 import cloudscraper #Used to scrape CloudFlare sites
 from bs4 import BeautifulSoup #Used for scraping websites
@@ -102,6 +104,7 @@ def drScrape(): #Scraping DarkReading's news page
     scraper = cloudscraper.create_scraper()
     site = scraper.get(darkreading)
     sitehtml = BeautifulSoup(site.text, features="html.parser")
+    print(sitehtml)
     news = sitehtml.find_all("div", class_ = "ListPreview-TitleWrapper")
     for div in news[0:5]:
         titlbox = div.find("a")
@@ -109,8 +112,10 @@ def drScrape(): #Scraping DarkReading's news page
 
         titleCheck = ' '.join(title.split()[:3])
         if any(titleCheck in article['title'] for article in newsList):
+            print("no")
             pass
         else:
+            print("yes")
             link = "https://www.darkreading.com" + titlbox['href']
             article = {
                 "title": title,
@@ -135,15 +140,17 @@ def tcScrape():
         except:
             pass
 
-with open('newsData.json') as fp:
+p = Path(__file__).with_name('newsData.json')
+
+with open(p) as fp:
     newsList = json.load(fp)
     #print(len(newsList)) # <- Json size bug testing
 
 #tcRSS()
 #bcRSS()
 #drScrape()
-#bcScrape()
-tcScrape()
+bcScrape()
+#tcScrape()
 
 while len(newsList) > 20:
     print(len(newsList))
@@ -151,6 +158,6 @@ while len(newsList) > 20:
 
 # make changes to newsList
 
-with open('newsData.json', 'w') as fp:
+with open(p, 'w') as fp:
     
     json.dump(newsList, fp, indent=2)

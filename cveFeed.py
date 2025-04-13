@@ -1,3 +1,5 @@
+
+from pathlib import Path
 import requests
 from datetime import datetime, timedelta
 import json
@@ -36,7 +38,9 @@ def parse(data):
 
 ######################
 
-with open('cveData.json') as fp:
+p = Path(__file__).with_name('cveData.json')
+
+with open(p) as fp:
     cveList = json.load(fp)
     #print(len(newsList))
 
@@ -49,5 +53,5 @@ while len(cveList) > 20:
 
 # make changes to newsList
 
-with open('cveData.json', 'w') as fp:
+with open(p, 'w') as fp:
     json.dump(cveList, fp, indent=2)

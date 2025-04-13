@@ -115,7 +115,7 @@ def load_news_data():
 
 #Load CVE data from JSON file
 def load_cve_data():
-    cve_file = "cvedata.json"
+    cve_file = "cveData.json"
     
     if os.path.exists(cve_file):
         try:
