@@ -33,7 +33,7 @@ def bcRSS():
         dtime = item.published
         pub_time = datetime.strptime(dtime, "%a, %d %b %Y %H:%M:%S %z")
 
-        if (utctime - pub_time) < timedelta(hours=12):
+        if (utctime - pub_time) < timedelta(hours=1):
             if item.category == "Security":
                 article = {
                     "title": item.title,
@@ -46,21 +46,20 @@ def bcRSS():
             break
 
 def tcRSS():
-    curtime = datetime.now(tz=None)
+    curtime = datetime.now(timezone.utc)
     feed = feedparser.parse("https://techcrunch.com/feed/")
 
     for item in feed.entries:
         dtime = item.published
-        pub_time = datetime.strptime(dtime, "%a, %d %b %Y %H:%M:%S %z").replace(tzinfo=None)
-
-        if (curtime - pub_time) < timedelta(hours=12):
+        pub_time = datetime.strptime(dtime, "%a, %d %b %Y %H:%M:%S %z")
+        if (curtime - pub_time) < timedelta(hours=1):
+            print(curtime - pub_time)
             article = {
                 "title": item.title,
-                #"link": item.link,
-                #"description": item.description
+                "link": item.link,
+                "description": item.description
             }
-            print(article)
-            #newsList.append(article)
+            newsList.append(article)
         else:
             break
 
@@ -84,7 +83,7 @@ def bcScrape(): #Scraping BleepingComputer security news page
             dtime = f"{date} {time}"
             publish_time = datetime.strptime(dtime, "%B %d, %Y %I:%M %p")
             timediff = curtime - publish_time
-            if timediff <= timedelta(hours=12):
+            if timediff <= timedelta(hours=1):
                 titlbox = div.find("a")
                 link = titlbox['href']
                 title = titlbox.text.strip()
@@ -100,7 +99,7 @@ def bcScrape(): #Scraping BleepingComputer security news page
         except:
             pass
 
-def drScrape(): #Scraping DarkReading's news page
+def drScrape(): #Doesn't always work properly due to CloudFlare
     scraper = cloudscraper.create_scraper()
     site = scraper.get(darkreading)
     sitehtml = BeautifulSoup(site.text, features="html.parser")
@@ -110,8 +109,9 @@ def drScrape(): #Scraping DarkReading's news page
         titlbox = div.find("a")
         title = titlbox.text.strip()
 
-        titleCheck = ' '.join(title.split()[:3])
-        if any(titleCheck in article['title'] for article in newsList):
+        #Since DarkReading doesn't give timestamps, this takes the latest 5 articles and checks whether they're already in the json file, if not, it adds it.
+        titleCheck = ' '.join(title.split()[:3]) 
+        if any(titleCheck in article['title'] for article in newsList): 
             print("no")
             pass
         else:
@@ -124,19 +124,25 @@ def drScrape(): #Scraping DarkReading's news page
             newsList.append(article)
 
 def tcScrape():
+    utctime = datetime.now(timezone.utc)
     site = requests.get(techcrunch, headers=headers)
     sitehtml = BeautifulSoup(site.text, features="html.parser")
     news = sitehtml.find_all("div", class_ = "loop-card__content")
     for div in news:
         try:
             timebox = div.find("time")
-            #print(timebox)
-            titlbox = div.find("a", class_ = "loop-card__title-link")
-            link = titlbox['href']
-            title = titlbox.text.strip()
-            print(title)
-            print(link)
-            #print()
+            if timebox == None: #Gets rid of fluff (most popular list, other columns with same div name)
+                continue
+            pubtime = datetime.fromisoformat(timebox['datetime'])
+            if (utctime - pubtime) < timedelta(hours=1):
+                titlbox = div.find("a", class_ = "loop-card__title-link")
+                title = titlbox.text.strip()
+                link = titlbox['href']
+                article = {
+                    "title": title,
+                    "link": link
+                }
+                newsList.append(article)
         except:
             pass
 
@@ -146,10 +152,10 @@ with open(p) as fp:
     newsList = json.load(fp)
     #print(len(newsList)) # <- Json size bug testing
 
-#tcRSS()
 #bcRSS()
+tcRSS()
 #drScrape()
-bcScrape()
+#bcScrape()
 #tcScrape()
 
 while len(newsList) > 20:
