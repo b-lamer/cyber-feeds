@@ -1,3 +1,8 @@
+## OUTDATED
+Unfortunately this project is now outdated with no current plans to update it. This is due to some hardware issues with my implementation as well as the NIST NVD unfortunately no longer updating with CVE's regularly. For a working (and more effective) implementation of this, check out my [ePaper Arduino version](https://github.com/b-lamer/ePaperNewsFeed) of nearly the same thing. <br>
+<br>
+If you still really want to use this, the cveFeed.py just needs to be re-written. I'd recommend using CISA's KEV catalog instead. 
+
 ## Overview
 This program will scrape cybersecurity news and CVE vulnerability releases and print the latest updates on a dashboard. The output is saved in json format and the scripts can be run on their own if preferred.<br>
 
