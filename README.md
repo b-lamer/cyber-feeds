@@ -1,7 +1,6 @@
 ## OUTDATED
-Unfortunately this project is now outdated with no current plans to update it. This is due to some hardware issues with my implementation as well as the NIST NVD unfortunately no longer updating with CVE's regularly. For a working (and more effective) implementation of this, check out my [ePaper Arduino version](https://github.com/b-lamer/ePaperNewsFeed) of nearly the same thing. <br>
+This project is slightly outdated, but still works great! For an Arduino ePaper alternative check out my [ePaper Arduino version](https://github.com/b-lamer/ePaperNewsFeed) of nearly the same thing. <br>
 <br>
-If you still really want to use this, the cveFeed.py just needs to be re-written. I'd recommend using CISA's KEV catalog instead. 
 
 ## Overview
 This program will scrape cybersecurity news and CVE vulnerability releases and print the latest updates on a dashboard. The output is saved in json format and the scripts can be run on their own if preferred.<br>
@@ -25,7 +24,7 @@ Dashboard: `pip install streamlit streamlit-autorefresh --break-system-packages`
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ## Example
-Below is my use case of this program. It is run on a Raspberry Pi 3 connected to a 7-inch display which is held up by two 3D printed stands. 
+Below is my use case of this program (Photo of previous version). It is run on a Raspberry Pi 3 connected to a 7-inch display which is held up by two 3D printed stands. 
 <br>
 <br>
 ![7 Inch News Feed](https://github.com/user-attachments/assets/2dce950e-4441-4ad2-8b3c-6d20da8829ad)
