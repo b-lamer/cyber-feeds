@@ -28,19 +28,19 @@ curtime = datetime.now(tz=None)
 def bcRSS():
     utctime = datetime.now(timezone.utc)
     feed = feedparser.parse("https://www.bleepingcomputer.com/feed/")
-
+    #print(feed)
     for item in feed.entries:
         dtime = item.published
         pub_time = datetime.strptime(dtime, "%a, %d %b %Y %H:%M:%S %z")
 
         if (utctime - pub_time) < timedelta(hours=1):
             if item.category == "Security":
+                print("New BleepingComputer article found, adding...")
                 article = {
                     "title": item.title,
                     "link": item.link,
                     "description": item.description
                 }
-                
                 newsList.append(article)
         else:
             break
@@ -53,7 +53,8 @@ def tcRSS():
         dtime = item.published
         pub_time = datetime.strptime(dtime, "%a, %d %b %Y %H:%M:%S %z")
         if (curtime - pub_time) < timedelta(hours=1):
-            print(curtime - pub_time)
+            print("New TechCrunch article found, adding...")
+            #print(curtime - pub_time)
             article = {
                 "title": item.title,
                 "link": item.link,
@@ -65,9 +66,6 @@ def tcRSS():
 
 def smRSS():
     feed = "https://www.securitymagazine.com/rss"
-
-
-
 
 
 #News Scraping Functions
@@ -103,7 +101,7 @@ def drScrape(): #Doesn't always work properly due to CloudFlare
     scraper = cloudscraper.create_scraper()
     site = scraper.get(darkreading)
     sitehtml = BeautifulSoup(site.text, features="html.parser")
-    print(sitehtml)
+    #print(sitehtml)
     news = sitehtml.find_all("div", class_ = "ListPreview-TitleWrapper")
     for div in news[0:5]:
         titlbox = div.find("a")
@@ -112,10 +110,10 @@ def drScrape(): #Doesn't always work properly due to CloudFlare
         #Since DarkReading doesn't give timestamps, this takes the latest 5 articles and checks whether they're already in the json file, if not, it adds it.
         titleCheck = ' '.join(title.split()[:3]) 
         if any(titleCheck in article['title'] for article in newsList): 
-            print("no")
+            print("Article previously included, skipping...")
             pass
         else:
-            print("yes")
+            print("DarkReading article not yet listed, adding...")
             link = "https://www.darkreading.com" + titlbox['href']
             article = {
                 "title": title,
@@ -152,14 +150,14 @@ with open(p) as fp:
     newsList = json.load(fp)
     #print(len(newsList)) # <- Json size bug testing
 
-#bcRSS()
-tcRSS()
-#drScrape()
-#bcScrape()
-#tcScrape()
+bcRSS() #BleepingComputer
+tcRSS() #TechCrunch
+drScrape() #DarkReading
+#bcScrape() #BleepingComputer Backup
+#tcScrape() #TechCrunch Backup
 
 while len(newsList) > 20:
-    print(len(newsList))
+    #print(len(newsList))
     del newsList[0]
 
 # make changes to newsList
