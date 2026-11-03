@@ -1,40 +1,39 @@
-
 from pathlib import Path
 import requests
-from datetime import datetime, timedelta
+import ijson
 import json
+import gzip
 
 
-curtime = datetime.now(tz=None)
-starttime = curtime - timedelta(hours=36)
-stime = starttime.strftime("%Y-%m-%dT%H:%M:%S")
-etime = curtime.strftime("%Y-%m-%dT%H:%M:%S")
+kevs = "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json"
 
-criticals = requests.get(f"https://services.nvd.nist.gov/rest/json/cves/2.0?cvssV3Severity=CRITICAL&pubStartDate={stime}&pubEndDate={etime}")
-highs = requests.get(f"https://services.nvd.nist.gov/rest/json/cves/2.0?cvssV3Severity=HIGH&pubStartDate={stime}&pubEndDate={etime}")
-jcrit = criticals.json()
-jhigh = highs.json()
+def vulnstream(kevs):
+    url = requests.get(kevs, stream=True)
 
-def parse(data):
-    for vuln in data["vulnerabilities"]:
-        vId = str(vuln["cve"]["id"])
-        score = str(vuln["cve"]["metrics"]["cvssMetricV31"][0]["cvssData"]["baseScore"])
-        rating = str(vuln["cve"]["metrics"]["cvssMetricV31"][0]["cvssData"]["baseSeverity"])
-        desc = str(vuln["cve"]["descriptions"][0]["value"])
+    url.raw.decode_content = True
+    decompressed_stream = gzip.GzipFile(fileobj=url.raw)
 
-        title = vId + " - Severity:  " + score + " [" + rating + "]"
-
-        desc = desc.split(". ")
-        if len(desc) > 1:
-            desc = desc[0] + ". " + desc[1]
-        else:
-            desc = desc[0]
-
+    vulns = ijson.items(url.raw, 'vulnerabilities.item')
+    for vuln in vulns:
+        #print(vuln)
+        name = vuln['vulnerabilityName']
+        desc = vuln['shortDescription']
+        cveid = vuln['cveID']
+        print(name)
+        print(desc)
+        print(cveid)
         item = {
-            "title": title,
-            "description": desc
+            "title": name,
+            "description": desc,
+            "id": cveid
         }
         cveList.append(item)
+        if len(cveList) == 20:
+            print(len(cveList))
+            break
+
+
+
 
 ######################
 
@@ -42,16 +41,14 @@ p = Path(__file__).with_name('cveData.json')
 
 with open(p) as fp:
     cveList = json.load(fp)
-    #print(len(newsList))
 
-parse(jhigh)
-parse(jcrit)
+vulnstream(kevs)
 
 while len(cveList) > 20:
     print(len(cveList))
     del cveList[0]
 
-# make changes to newsList
+# make changes to cveList
 
 with open(p, 'w') as fp:
     json.dump(cveList, fp, indent=2)

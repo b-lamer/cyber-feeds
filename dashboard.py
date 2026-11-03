@@ -2,6 +2,7 @@ import streamlit as st
 import json
 import datetime
 import os
+import html
 from streamlit_autorefresh import st_autorefresh
 
 st.set_page_config(
@@ -64,13 +65,13 @@ dark_theme = """
         font-size: 1.5rem;
     }
     
-    .high-severity {
+    .cve-item {
+        background-color: #1E1E2E;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 10px;
         border-left: 5px solid #FF4B4B;
-    }
-    
-    .critical-severity {
-        border-left: 5px solid #FF0000;
-        background-color: #2E1E2E;
+        font-size: 1.5rem;
     }
     
     .timestamp {
@@ -147,6 +148,7 @@ with col1:
             """, unsafe_allow_html=True)
 
 # CVE column
+# CVE column
 with col2:
     cve_data = load_cve_data()
     
@@ -154,23 +156,16 @@ with col2:
         st.info("No CVE data available yet. Wait for the next update.")
     
     for item in reversed(cve_data):
-        # Extract severity from title
-        title = item.get('title', '')
-        
-        if "[CRITICAL]" in title:
-            severity_class = "critical-severity"
-        elif "[HIGH]" in title:
-            severity_class = "high-severity"
-            
-        # Extract CVE ID from title
-        cve_id = title.split(" - ")[0] if " - " in title else title
+        title = html.escape(item.get('title', 'No Title'))
+        description = html.escape(item.get('description', 'No description available.'))
+        cve_id = html.escape(item.get('id', ''))
             
         with st.container():
             st.markdown(f"""
-            <div class="cve-item {severity_class}">
-                <h3>{cve_id}</h3>
-                <p><strong>{title.split(" - ")[1] if " - " in title else ""}</strong></p>
-                <p>{item.get('description', 'No description available.')}</p>
+            <div class="cve-item">
+                <h3>{title}</h3>
+                <p>{description}</p>
+                <p class="cve-id">{cve_id}</p>
             </div>
             """, unsafe_allow_html=True)
 
