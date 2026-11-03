@@ -12,8 +12,8 @@ To utilize the full program, you will need to do the following:
 * Run `streamlit run dashboard.py` in terminal
 
 ### Windows:<br>
-CVE Feed Script: `pip install requests datetime json`<br>
-News Feed Script: `pip install cloudscraper bs4 feedparser` *<- In addition to above*<br>
+CVE Feed Script: `pip install requests ijson`<br>
+News Feed Script: `pip install datetime cloudscraper bs4 feedparser` *<- In addition to above*<br>
 Dashboard: `pip install streamlit streamlit-autorefresh`
 <br>
 ### Linux:<br>
