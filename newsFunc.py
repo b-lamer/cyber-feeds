@@ -143,12 +143,16 @@ def tcScrape(newsList):
                 newsList.append(article)
         except:
             pass
+
 def run():
     p = Path(__file__).with_name('newsData.json')
 
-    with open(p) as fp:
-        newsList = json.load(fp)
-        #print(len(newsList)) # <- Json size bug testing
+    try:
+        with open(p) as fp:
+            newsList = json.load(fp)
+            #print(len(newsList)) # <- Json size bug testing
+    except:
+        newsList = []
 
     bcRSS(newsList) #BleepingComputer
     tcRSS(newsList) #TechCrunch
@@ -161,7 +165,5 @@ def run():
         del newsList[0]
 
     # make changes to newsList
-
     with open(p, 'w') as fp:
-        
         json.dump(newsList, fp, indent=2)

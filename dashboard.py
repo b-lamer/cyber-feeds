@@ -22,28 +22,22 @@ DISPLAY_ITEMS = 20
 
 log = logging.getLogger(__name__)
 
-
 #Background update
 
-def _update_loop():
+def update():
     while True:
-        for name, job in (("cveFeed", cveFeed.run), ("newsFunc", newsFunc.run)):
+        for job in (cveFeed.run, newsFunc.run):
             try:
                 job()
-            except Exception:
-                log.exception("%s.run() failed", name)
-        time.sleep(UPDATE_INTERVAL_S)
-
+            except Exception as e:
+                print(f"{job.__module__}.run failed: {e}")
+        time.sleep(3600)
 
 @st.cache_resource
 def start_updater():
-    # Streamlit re-executes this whole script on every rerun/session. cache_resource makes
-    # this body run once per server process, so only one updater thread ever exists.
-    logging.basicConfig(level=logging.INFO)
-    thread = threading.Thread(target=_update_loop, daemon=True)
-    thread.start()
-    return thread
-
+    t = threading.Thread(target=update, daemon=True)
+    t.start()
+    return t
 
 start_updater()
 

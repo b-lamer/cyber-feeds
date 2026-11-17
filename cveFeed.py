@@ -31,9 +31,6 @@ def vulnstream(kevs, cveList):
             #print(len(cveList))
             break
 
-
-
-
 ######################
 def run():
     cveList = []
@@ -46,6 +43,5 @@ def run():
         del cveList[0]
 
     # make changes to cveList
-
     with open(p, 'w') as fp:
         json.dump(cveList, fp, indent=2)
