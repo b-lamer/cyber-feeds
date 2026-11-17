@@ -1,0 +1,7 @@
+requests
+ijson
+datetime
+cloudscraper
+bs4
+streamlit
+streamlit-autorefresh

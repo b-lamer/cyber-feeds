@@ -4,6 +4,9 @@ import datetime
 import os
 import html
 from streamlit_autorefresh import st_autorefresh
+import cveFeed
+import newsFunc
+import time
 
 st.set_page_config(
     layout="wide",
@@ -147,7 +150,6 @@ with col1:
             </div>
             """, unsafe_allow_html=True)
 
-# CVE column
 # CVE column
 with col2:
     cve_data = load_cve_data()

@@ -36,19 +36,19 @@ def vulnstream(kevs):
 
 
 ######################
+def run():
+    p = Path(__file__).with_name('cveData.json')
 
-p = Path(__file__).with_name('cveData.json')
+    with open(p) as fp:
+        cveList = json.load(fp)
 
-with open(p) as fp:
-    cveList = json.load(fp)
+    vulnstream(kevs)
 
-vulnstream(kevs)
+    while len(cveList) > 20:
+        print(len(cveList))
+        del cveList[0]
 
-while len(cveList) > 20:
-    print(len(cveList))
-    del cveList[0]
+    # make changes to cveList
 
-# make changes to cveList
-
-with open(p, 'w') as fp:
-    json.dump(cveList, fp, indent=2)
+    with open(p, 'w') as fp:
+        json.dump(cveList, fp, indent=2)
