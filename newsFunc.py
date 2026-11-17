@@ -25,7 +25,7 @@ securitymagazine = "https://www.securitymagazine.com/"
 curtime = datetime.now(tz=None)
 
 #RSS Functions
-def bcRSS():
+def bcRSS(newsList):
     utctime = datetime.now(timezone.utc)
     feed = feedparser.parse("https://www.bleepingcomputer.com/feed/")
     #print(feed)
@@ -45,7 +45,7 @@ def bcRSS():
         else:
             break
 
-def tcRSS():
+def tcRSS(newsList):
     curtime = datetime.now(timezone.utc)
     feed = feedparser.parse("https://techcrunch.com/feed/")
 
@@ -64,13 +64,13 @@ def tcRSS():
         else:
             break
 
-def smRSS():
+def smRSS(newsList):
     feed = "https://www.securitymagazine.com/rss"
 
 
 #News Scraping Functions
 
-def bcScrape(): #Scraping BleepingComputer security news page
+def bcScrape(newsList): #Scraping BleepingComputer security news page
     site = requests.get(bleepingcomputer, headers=headers)
     sitehtml = BeautifulSoup(site.text, features="html.parser")
     news = sitehtml.find_all("div", class_ = "bc_latest_news_text")
@@ -97,7 +97,7 @@ def bcScrape(): #Scraping BleepingComputer security news page
         except:
             pass
 
-def drScrape(): #Doesn't always work properly due to CloudFlare
+def drScrape(newsList): #Doesn't always work properly due to CloudFlare
     scraper = cloudscraper.create_scraper()
     site = scraper.get(darkreading)
     sitehtml = BeautifulSoup(site.text, features="html.parser")
@@ -121,7 +121,7 @@ def drScrape(): #Doesn't always work properly due to CloudFlare
             }
             newsList.append(article)
 
-def tcScrape():
+def tcScrape(newsList):
     utctime = datetime.now(timezone.utc)
     site = requests.get(techcrunch, headers=headers)
     sitehtml = BeautifulSoup(site.text, features="html.parser")
@@ -143,25 +143,25 @@ def tcScrape():
                 newsList.append(article)
         except:
             pass
+def run():
+    p = Path(__file__).with_name('newsData.json')
 
-p = Path(__file__).with_name('newsData.json')
+    with open(p) as fp:
+        newsList = json.load(fp)
+        #print(len(newsList)) # <- Json size bug testing
 
-with open(p) as fp:
-    newsList = json.load(fp)
-    #print(len(newsList)) # <- Json size bug testing
+    bcRSS(newsList) #BleepingComputer
+    tcRSS(newsList) #TechCrunch
+    drScrape(newsList) #DarkReading
+    #bcScrape() #BleepingComputer Backup
+    #tcScrape() #TechCrunch Backup
 
-bcRSS() #BleepingComputer
-tcRSS() #TechCrunch
-drScrape() #DarkReading
-#bcScrape() #BleepingComputer Backup
-#tcScrape() #TechCrunch Backup
+    while len(newsList) > 20:
+        #print(len(newsList))
+        del newsList[0]
 
-while len(newsList) > 20:
-    #print(len(newsList))
-    del newsList[0]
+    # make changes to newsList
 
-# make changes to newsList
-
-with open(p, 'w') as fp:
-    
-    json.dump(newsList, fp, indent=2)
+    with open(p, 'w') as fp:
+        
+        json.dump(newsList, fp, indent=2)

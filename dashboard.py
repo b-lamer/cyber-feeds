@@ -7,6 +7,14 @@ from streamlit_autorefresh import st_autorefresh
 import cveFeed
 import newsFunc
 import time
+import threading
+
+def update():
+    while True:
+        cveFeed.run()
+        newsFunc.run()
+        time.sleep(3600)
+threading.Thread(target=update, daemon=True).start()
 
 st.set_page_config(
     layout="wide",
@@ -174,4 +182,4 @@ with col2:
 
 st.markdown("<div style='margin-bottom:200px;'></div>", unsafe_allow_html=True)
 
-st_autorefresh(interval=2000, limit=None)
+st_autorefresh(interval=3600000, limit=None)

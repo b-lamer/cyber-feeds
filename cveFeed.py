@@ -7,7 +7,7 @@ import gzip
 
 kevs = "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json"
 
-def vulnstream(kevs):
+def vulnstream(kevs, cveList):
     url = requests.get(kevs, stream=True)
 
     url.raw.decode_content = True
@@ -28,7 +28,7 @@ def vulnstream(kevs):
             "id": cveid
         }
         cveList.append(item)
-        if len(cveList) == 20:
+        if len(cveList) >= 20:
             print(len(cveList))
             break
 
@@ -42,7 +42,7 @@ def run():
     with open(p) as fp:
         cveList = json.load(fp)
 
-    vulnstream(kevs)
+    vulnstream(kevs, cveList)
 
     while len(cveList) > 20:
         print(len(cveList))
