@@ -1,9 +1,8 @@
-from pathlib import Path
 import requests
 import ijson
-import json
 import gzip
-
+import json
+from pathlib import Path
 
 kevs = "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json"
 
@@ -19,9 +18,9 @@ def vulnstream(kevs, cveList):
         name = vuln['vulnerabilityName']
         desc = vuln['shortDescription']
         cveid = vuln['cveID']
-        print(name)
-        print(desc)
-        print(cveid)
+        #print(name)
+        #print(desc)
+        #print(cveid)
         item = {
             "title": name,
             "description": desc,
@@ -29,7 +28,7 @@ def vulnstream(kevs, cveList):
         }
         cveList.append(item)
         if len(cveList) >= 20:
-            print(len(cveList))
+            #print(len(cveList))
             break
 
 
@@ -37,10 +36,8 @@ def vulnstream(kevs, cveList):
 
 ######################
 def run():
+    cveList = []
     p = Path(__file__).with_name('cveData.json')
-
-    with open(p) as fp:
-        cveList = json.load(fp)
 
     vulnstream(kevs, cveList)
 
