@@ -1,7 +1,7 @@
 requests
 ijson
-datetime
 cloudscraper
-bs4
+beautifulsoup4
+feedparser
 streamlit
 streamlit-autorefresh

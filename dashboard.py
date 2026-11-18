@@ -5,6 +5,7 @@ import logging
 import threading
 import time
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 import streamlit as st
 from streamlit_autorefresh import st_autorefresh
@@ -41,9 +42,7 @@ def start_updater():
 
 start_updater()
 
-
 # Page setup
-
 st.set_page_config(layout="wide", initial_sidebar_state="collapsed")
 
 st.markdown("""
@@ -122,9 +121,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-
 # Data
-
 def load_json(path):
     try:
         with open(path, encoding="utf-8") as f:
@@ -132,15 +129,15 @@ def load_json(path):
     except (FileNotFoundError, json.JSONDecodeError):
         return []
 
-
 def last_data_update():
     times = [p.stat().st_mtime for p in (NEWS_FILE, CVE_FILE) if p.exists()]
     if not times:
         return "no data yet"
-    return datetime.datetime.fromtimestamp(max(times)).strftime("%Y-%m-%d %H:%M:%S")
+    tz = ZoneInfo(st.context.timezone or "UTC")
+    return datetime.datetime.fromtimestamp(max(times), tz).strftime("%Y-%m-%d %H:%M:%S")
 
-
-st.write(f"Data last updated: {last_data_update()}")
+tz = ZoneInfo(st.context.timezone or "UTC")
+st.write(f"Last updated: {datetime.datetime.now(tz).strftime('%Y-%m-%d %H:%M:%S')}")
 
 col1, col2 = st.columns(2)
 
@@ -157,12 +154,12 @@ with col1:
         link = html.escape(item.get("link") or "#", quote=True)
 
         st.markdown(f"""
-<div class="news-item">
-<h3>{title}</h3>
-<p>{description}</p>
-<p class="timestamp">Source: <a href="{link}" target="_blank">{link}</a></p>
-</div>
-""", unsafe_allow_html=True)
+            <div class="news-item">
+            <h3>{title}</h3>
+            <p>{description}</p>
+            <p class="timestamp">Source: <a href="{link}" target="_blank">{link}</a></p>
+            </div>
+            """, unsafe_allow_html=True)
 
 # CVE column
 with col2:
@@ -177,12 +174,12 @@ with col2:
         cve_id = html.escape(item.get("id") or "")
 
         st.markdown(f"""
-<div class="cve-item">
-<h3>{title}</h3>
-<p>{description}</p>
-<p class="cve-id">{cve_id}</p>
-</div>
-""", unsafe_allow_html=True)
+            <div class="cve-item">
+            <h3>{title}</h3>
+            <p>{description}</p>
+            <p class="cve-id">{cve_id}</p>
+            </div>
+            """, unsafe_allow_html=True)
 
 st.markdown("<div style='margin-bottom:200px;'></div>", unsafe_allow_html=True)
 

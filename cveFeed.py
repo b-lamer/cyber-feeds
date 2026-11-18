@@ -1,6 +1,5 @@
 import requests
 import ijson
-import gzip
 import json
 from pathlib import Path
 
@@ -10,7 +9,6 @@ def vulnstream(kevs, cveList):
     url = requests.get(kevs, stream=True)
 
     url.raw.decode_content = True
-    decompressed_stream = gzip.GzipFile(fileobj=url.raw)
 
     vulns = ijson.items(url.raw, 'vulnerabilities.item')
     for vuln in vulns:
