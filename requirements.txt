@@ -1,0 +1,7 @@
+requests
+ijson
+cloudscraper
+beautifulsoup4
+feedparser
+streamlit
+streamlit-autorefresh
